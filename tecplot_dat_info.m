@@ -1,4 +1,4 @@
-function [n_nodes,n_elms,fpst,vars]=tecplot_dat_info(filename)
+function [n_nodes,n_elms,fpst,vars,var_loc]=tecplot_dat_info(filename)
 %read_tecplot_dat_info Read info from Tecplot importable format *.dat file.
 %   Reture number of nodes and elements, as well as file position.
 %   ChaoWang201512052144
@@ -8,6 +8,9 @@ function [n_nodes,n_elms,fpst,vars]=tecplot_dat_info(filename)
 
 %   ChaoWang201702271110:
 %   Codes added to return name of variables
+
+%   ChaoWang201702271247:
+%   Codes added to return variable location (at node or at center)
 
 fid=fopen(filename,'r');
 while 1
@@ -33,7 +36,13 @@ n_nodes = sscanf(zone_info(endIndex+1:end), '%g', 1);
 expression=', E=';
 [~,endIndex] = regexp(zone_info,expression);
 n_elms = sscanf(zone_info(endIndex+1:end), '%g', 1);
+% Get variable location (at node or at center)
+expression='VARLOCATION=([';
+[~,endIndex] = regexp(zone_info,expression);
+var_loc = textscan(zone_info(endIndex+1:end),'%d','Delimiter',',');
+var_loc = var_loc{1};
 
+% File position
 fpst=ftell(fid);
 
 fclose(fid);
